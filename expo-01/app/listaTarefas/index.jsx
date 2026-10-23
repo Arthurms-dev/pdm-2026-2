@@ -1,23 +1,25 @@
 import { addTarefa, deleteTarefa, getTarefas, updateTarefa } from "@/api";
 import { Tarefa } from "@/components/Tarefa";
-// import { useTaskFilter } from "@/zustand";
+import { useTaskFilter } from "@/zustand";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Button,
   FlatList,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
 } from "react-native";
 
 export default function ListaDeTarefas() {
+  const router = useRouter();
   const [descricao, setDescricao] = useState("");
-  // const { filtrarConcluidas, toggleFiltrarConcluidas } = useTaskFilter(
-  //   (state) => state,
-  // );
+  const { filtrarConcluidas, toggleFiltrarConcluidas } = useTaskFilter(
+    (state) => state,
+  );
   const queryClient = useQueryClient();
   const { data, isFetching, isLoading, isError, error } = useQuery({
     queryKey: ["tarefas"],
@@ -77,15 +79,20 @@ export default function ListaDeTarefas() {
     deleteMutation.mutate(tarefa);
   }
 
+  function handleNavigate(id) {
+    router.navigate({
+      pathname: "/listaTarefas/[id]",
+      params: { id: id },
+    });
+  }
+
   let tarefas = data;
-  // if (data && filtrarConcluidas) {
-  //   tarefas = data.filter((tarefa) => !tarefa.concluida);
-  // }
+  if (data && filtrarConcluidas) {
+    tarefas = data.filter((tarefa) => !tarefa.concluida);
+  }
 
   return (
     <View>
-      <Link href="/">Home</Link>
-      <View style={styles.hr} />
       {isError && (
         <View>
           <Text style={styles.h2}>Query Error: {error.message}</Text>
@@ -101,8 +108,7 @@ export default function ListaDeTarefas() {
         </View>
       )}
       <Text style={styles.h1}>
-        Lista de Tarefas {isLoading && "(carregando...)"}{" "}
-        {isFetching && "[buscando...]"}
+        {isLoading && "(carregando...)"} {isFetching && "[buscando...]"}
       </Text>
       <View style={styles.hr} />
       <View style={{ flexDirection: "row" }}>
@@ -118,17 +124,17 @@ export default function ListaDeTarefas() {
         />
       </View>
       <View style={styles.hr} />
-      {/* 
-      <p>
-        Ocultar as tarefas concluídas{" "}
-        <input
-          type="checkbox"
-          checked={filtrarConcluidas}
-          onChange={toggleFiltrarConcluidas}
+      <View style={{ flexDirection: "row" }}>
+        <Text>Ocultar as tarefas concluídas </Text>
+        <Switch
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={filtrarConcluidas ? "#f5dd4b" : "#f4f3f4"}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleFiltrarConcluidas}
+          value={filtrarConcluidas}
         />
-      </p>
-      <hr />
-      */}
+      </View>
+      <View style={styles.hr} />
       <FlatList
         data={tarefas}
         renderItem={({ item: tarefa }) => (
@@ -137,6 +143,7 @@ export default function ListaDeTarefas() {
             tarefa={tarefa}
             onUpdate={handleAtualizarTarefa}
             onDelete={handleRemoverTarefa}
+            onNavigate={handleNavigate}
             disabled={updateMutation.isPending || deleteMutation.isPending}
           />
         )}
