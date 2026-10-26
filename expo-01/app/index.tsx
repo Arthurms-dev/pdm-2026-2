@@ -13,11 +13,7 @@ export default function Index() {
   useEffect(() => {
     async function checkAuth() {
       const currentUser = await getCurrentUser();
-      if (!currentUser) {
-        router.replace("/login" as any);
-      } else {
-        setUser(currentUser);
-      }
+      setUser(currentUser || null);
       setLoading(false);
     }
     checkAuth();
@@ -25,7 +21,7 @@ export default function Index() {
 
   const handleLogout = async () => {
     await logoutUser();
-    router.replace("/login" as any);
+    setUser(null);
   };
 
   if (loading) {
@@ -37,14 +33,10 @@ export default function Index() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text style={styles.welcomeText}>Bem-vindo, {user?.get("username")}!</Text>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Text style={styles.welcomeText}>
+        {user ? `Bem-vindo, ${user.get("username")}!` : "Bem-vindo, Visitante!"}
+      </Text>
 
       <Text>Programação para Dispositivos Móveis</Text>
       
@@ -52,35 +44,24 @@ export default function Index() {
       
       <Link href={"/listaTarefas" as any} asChild>
         <Pressable style={styles.pressableLink}>
-          <FontAwesome5
-            name="tasks"
-            size={28}
-            color="green"
-            iconStyle="solid"
-          />
+          <FontAwesome5 name="tasks" size={28} color="green" iconStyle="solid" />
           <Text style={styles.link}>Tarefas</Text>
         </Pressable>
       </Link>
 
       <View style={{ marginTop: 40 }}>
-        <Button title="Sair (Logout)" color="red" onPress={handleLogout} />
+        {user ? (
+          <Button title="Sair (Logout)" color="red" onPress={handleLogout} />
+        ) : (
+          <Button title="Fazer Login" onPress={() => router.push("/login" as any)} />
+        )}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pressableLink: {
-    flexDirection: "row",
-    marginTop: 10,
-  },
-  link: {
-    marginLeft: 10,
-    textDecorationLine: "underline",
-  },
-  welcomeText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
+  pressableLink: { flexDirection: "row", marginTop: 10 },
+  link: { marginLeft: 10, textDecorationLine: "underline" },
+  welcomeText: { fontSize: 18, fontWeight: "bold", marginBottom: 20 },
 });
