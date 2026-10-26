@@ -14,7 +14,11 @@ export async function registerUser(username, password, email) {
 }
 
 export async function logoutUser() {
-  await Parse.User.logOut();
+  try {
+    await Parse.User.logOut();
+  } catch (error) {
+    console.warn("A sessão já estava inválida no servidor. A limpar localmente...");
+  }
 }
 
 export async function getCurrentUser() {
