@@ -17,14 +17,20 @@ export default function RegisterScreen() {
     }
     setLoading(true);
     try {
-      await registerUser(username, password, email);
-      Alert.alert('Sucesso', 'Conta criada com sucesso!');
-      router.replace('/');
-    } catch (error: any) {
-      Alert.alert('Erro no cadastro', error.message);
-    } finally {
+  console.log("A enviar dados para o Back4App...");
+  await registerUser(username, password, email);
+  console.log("Cadastro efetuado com sucesso!");
+  Alert.alert('Sucesso', 'Conta criada com sucesso!');
+  router.replace('/');
+} catch (error: any) {
+  console.error("ERRO BRUTO DO PARSE:", error);
+  Alert.alert('Erro no cadastro', error.message || 'Erro de conexão.');
+}
+    finally {
       setLoading(false);
     }
+
+    console.log("App ID:", process.env.EXPO_PUBLIC_PARSE_APP_ID);
   };
 
   return (

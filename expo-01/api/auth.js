@@ -1,3 +1,4 @@
+import 'react-native-get-random-values';
 import Parse from 'parse/react-native.js';
 
 export async function loginUser(username, password) {
